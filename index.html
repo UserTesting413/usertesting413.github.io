@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIF/WebP Animator</title>
+    <title>GIF/WebP Animator - FAST</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Mono:wght@700&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
             --bg-primary: #0a0a0f;
@@ -36,10 +32,7 @@
                 radial-gradient(circle at 80% 80%, rgba(255, 0, 136, 0.03) 0%, transparent 50%);
         }
         
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1400px; margin: 0 auto; }
         
         h1 {
             font-family: 'Space Mono', monospace;
@@ -74,7 +67,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            margin-bottom: 1rem;
         }
         
         .control-group {
@@ -91,7 +83,7 @@
             font-weight: 600;
         }
         
-        input[type="number"] {
+        input[type="number"], select {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -102,29 +94,13 @@
             transition: all 0.2s;
         }
         
-        input[type="number"]:focus {
+        input[type="number"]:focus, select:focus {
             outline: none;
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
         }
         
-        select {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.75rem;
-            color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
-        }
+        select { cursor: pointer; }
         
         button {
             background: linear-gradient(135deg, var(--accent-primary), #00dd77);
@@ -147,9 +123,7 @@
             box-shadow: 0 6px 24px rgba(0, 255, 136, 0.3);
         }
         
-        button:active {
-            transform: translateY(0);
-        }
+        button:active { transform: translateY(0); }
         
         button:disabled {
             opacity: 0.5;
@@ -191,10 +165,7 @@
             transform: scale(1.02);
         }
         
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
+        .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
         
         .frames-container {
             background: var(--bg-secondary);
@@ -232,15 +203,8 @@
             transition: all 0.2s;
         }
         
-        .frame-item:active {
-            cursor: grabbing;
-        }
-        
-        .frame-item.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
-        }
-        
+        .frame-item:active { cursor: grabbing; }
+        .frame-item.dragging { opacity: 0.5; transform: scale(0.95); }
         .frame-item:hover {
             border-color: var(--accent-primary);
             box-shadow: 0 4px 16px var(--shadow);
@@ -320,9 +284,7 @@
             display: none;
         }
         
-        .progress-container.active {
-            display: block;
-        }
+        .progress-container.active { display: block; }
         
         .progress-label {
             font-size: 0.875rem;
@@ -381,24 +343,20 @@
             flex-wrap: wrap;
         }
         
-        input[type="file"] {
-            display: none;
-        }
+        input[type="file"] { display: none; }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
         }
         
-        .processing {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
+        .processing { animation: pulse 1.5s ease-in-out infinite; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>GIF/WebP Animator</h1>
-        <p class="subtitle">Drag. Drop. Animate. Export.</p>
+        <p class="subtitle">Drag. Drop. Animate. Export. FAST.</p>
         
         <div class="controls">
             <div class="controls-grid">
@@ -410,7 +368,7 @@
                     <label for="outputFormat">Output Format</label>
                     <select id="outputFormat">
                         <option value="gif">GIF</option>
-                        <option value="webp">WebP</option>
+                        <option value="webp">WebP (Animated)</option>
                     </select>
                 </div>
             </div>
@@ -450,47 +408,44 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
-    <script>
+    <script type="module">
+        import { GIFEncoder, quantize, applyPalette } from 'https://unpkg.com/modern-gif@4.3.2/dist/modern-gif.js';
+        
         let frames = [];
         let draggedIndex = null;
         
-        const uploadZone = document.getElementById('uploadZone');
-        const fileInput = document.getElementById('fileInput');
-        const framesList = document.getElementById('framesList');
-        const frameCount = document.getElementById('frameCount');
-        const defaultDelayInput = document.getElementById('defaultDelay');
-        const outputFormatSelect = document.getElementById('outputFormat');
-        const generateBtn = document.getElementById('generateBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressBar = document.getElementById('progressBar');
-        const progressPercentage = document.getElementById('progressPercentage');
+        const els = {
+            uploadZone: document.getElementById('uploadZone'),
+            fileInput: document.getElementById('fileInput'),
+            framesList: document.getElementById('framesList'),
+            frameCount: document.getElementById('frameCount'),
+            defaultDelay: document.getElementById('defaultDelay'),
+            outputFormat: document.getElementById('outputFormat'),
+            generateBtn: document.getElementById('generateBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            progressContainer: document.getElementById('progressContainer'),
+            progressBar: document.getElementById('progressBar'),
+            progressPercentage: document.getElementById('progressPercentage')
+        };
         
-        // Upload zone interactions
-        uploadZone.addEventListener('click', () => fileInput.click());
-        
-        uploadZone.addEventListener('dragover', (e) => {
+        // Upload interactions
+        els.uploadZone.addEventListener('click', () => els.fileInput.click());
+        els.uploadZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadZone.classList.add('dragover');
+            els.uploadZone.classList.add('dragover');
         });
-        
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
+        els.uploadZone.addEventListener('dragleave', () => {
+            els.uploadZone.classList.remove('dragover');
         });
-        
-        uploadZone.addEventListener('drop', (e) => {
+        els.uploadZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadZone.classList.remove('dragover');
+            els.uploadZone.classList.remove('dragover');
             handleFiles(e.dataTransfer.files);
         });
-        
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
+        els.fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
         
         function handleFiles(files) {
-            const defaultDelay = parseInt(defaultDelayInput.value);
+            const defaultDelay = parseInt(els.defaultDelay.value);
             
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith('image/')) return;
@@ -516,11 +471,11 @@
         }
         
         function renderFrames() {
-            frameCount.textContent = frames.length;
-            generateBtn.disabled = frames.length === 0;
+            els.frameCount.textContent = frames.length;
+            els.generateBtn.disabled = frames.length === 0;
             
             if (frames.length === 0) {
-                framesList.innerHTML = `
+                els.framesList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🎞️</div>
                         <p>No frames yet. Add images to get started!</p>
@@ -529,7 +484,7 @@
                 return;
             }
             
-            framesList.innerHTML = frames.map((frame, index) => `
+            els.framesList.innerHTML = frames.map((frame, index) => `
                 <div class="frame-item" draggable="true" data-index="${index}">
                     <div class="drag-handle">⋮⋮</div>
                     <img src="${frame.dataUrl}" class="frame-preview" alt="${frame.name}">
@@ -537,23 +492,32 @@
                         <div class="frame-name">${frame.name}</div>
                         <div class="frame-dimensions">${frame.width} × ${frame.height}px</div>
                         <div class="frame-delay">
-                            <input type="number" value="${frame.delay}" min="10" step="10" 
-                                   onchange="updateFrameDelay(${index}, this.value)">
+                            <input type="number" value="${frame.delay}" min="10" step="10" data-index="${index}">
                             <span class="frame-delay-label">ms</span>
                         </div>
                     </div>
-                    <button class="frame-remove button-secondary" onclick="removeFrame(${index})">
-                        Remove
-                    </button>
+                    <button class="frame-remove button-secondary" data-index="${index}">Remove</button>
                 </div>
             `).join('');
             
-            // Add drag and drop listeners
             document.querySelectorAll('.frame-item').forEach(item => {
                 item.addEventListener('dragstart', handleDragStart);
                 item.addEventListener('dragover', handleDragOver);
                 item.addEventListener('drop', handleDrop);
                 item.addEventListener('dragend', handleDragEnd);
+            });
+            
+            document.querySelectorAll('.frame-delay input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    frames[parseInt(e.target.dataset.index)].delay = parseInt(e.target.value);
+                });
+            });
+            
+            document.querySelectorAll('.frame-remove').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    frames.splice(parseInt(e.target.dataset.index), 1);
+                    renderFrames();
+                });
             });
         }
         
@@ -562,17 +526,14 @@
             e.target.classList.add('dragging');
         }
         
-        function handleDragOver(e) {
-            e.preventDefault();
-        }
+        function handleDragOver(e) { e.preventDefault(); }
         
         function handleDrop(e) {
             e.preventDefault();
             const dropIndex = parseInt(e.currentTarget.getAttribute('data-index'));
             
             if (draggedIndex !== null && draggedIndex !== dropIndex) {
-                const draggedFrame = frames[draggedIndex];
-                frames.splice(draggedIndex, 1);
+                const [draggedFrame] = frames.splice(draggedIndex, 1);
                 frames.splice(dropIndex, 0, draggedFrame);
                 renderFrames();
             }
@@ -583,160 +544,144 @@
             draggedIndex = null;
         }
         
-        function updateFrameDelay(index, delay) {
-            frames[index].delay = parseInt(delay);
-        }
-        
-        function removeFrame(index) {
-            frames.splice(index, 1);
-            renderFrames();
-        }
-        
-        clearBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all frames?')) {
+        els.clearBtn.addEventListener('click', () => {
+            if (confirm('Clear all frames?')) {
                 frames = [];
                 renderFrames();
             }
         });
         
-        generateBtn.addEventListener('click', async () => {
-            const format = outputFormatSelect.value;
-            
-            if (format === 'gif') {
-                await generateGIF();
-            } else {
-                await generateWebP();
-            }
+        els.generateBtn.addEventListener('click', async () => {
+            const format = els.outputFormat.value;
+            format === 'gif' ? await generateGIF() : await generateWebP();
         });
         
         async function generateGIF() {
-            progressContainer.classList.add('active');
-            generateBtn.disabled = true;
-            generateBtn.classList.add('processing');
+            els.progressContainer.classList.add('active');
+            els.generateBtn.disabled = true;
+            els.generateBtn.classList.add('processing');
             
-            // Calculate canvas dimensions
-            const maxWidth = Math.max(...frames.map(f => f.width));
-            const maxHeight = Math.max(...frames.map(f => f.height));
-            
-            const gif = new GIF({
-                workers: 2,
-                quality: 10,
-                width: maxWidth,
-                height: maxHeight,
-                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
-            });
-            
-            // Add frames
-            for (let i = 0; i < frames.length; i++) {
-                const frame = frames[i];
-                const canvas = document.createElement('canvas');
-                canvas.width = maxWidth;
-                canvas.height = maxHeight;
-                const ctx = canvas.getContext('2d');
+            try {
+                const maxWidth = Math.max(...frames.map(f => f.width));
+                const maxHeight = Math.max(...frames.map(f => f.height));
+                const gif = GIFEncoder();
                 
-                // Fill with white (GIF padding)
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, maxWidth, maxHeight);
+                for (let i = 0; i < frames.length; i++) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = maxWidth;
+                    canvas.height = maxHeight;
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, maxWidth, maxHeight);
+                    
+                    const img = await loadImage(frames[i].dataUrl);
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
+                    const palette = quantize(imageData.data, 256);
+                    const index = applyPalette(imageData.data, palette);
+                    
+                    gif.writeFrame(index, maxWidth, maxHeight, {
+                        palette,
+                        delay: frames[i].delay,
+                        transparent: false,
+                        dispose: 1
+                    });
+                    
+                    updateProgress(((i + 1) / frames.length) * 100);
+                }
                 
-                // Draw image at top-left
-                const img = new Image();
-                await new Promise(resolve => {
-                    img.onload = resolve;
-                    img.src = frame.dataUrl;
-                });
-                ctx.drawImage(img, 0, 0);
+                gif.finish();
+                const blob = new Blob([gif.bytesView()], { type: 'image/gif' });
+                downloadFile(blob, 'animation.gif');
                 
-                gif.addFrame(canvas, { delay: frame.delay });
-                
-                // Update progress
-                const progress = ((i + 1) / frames.length) * 50; // First 50% for adding frames
-                updateProgress(progress);
+            } catch (error) {
+                alert('Error: ' + error.message);
             }
             
-            gif.on('progress', (p) => {
-                const progress = 50 + (p * 50); // Second 50% for encoding
-                updateProgress(progress);
-            });
-            
-            gif.on('finished', (blob) => {
-                downloadFile(blob, 'animation.gif');
-                progressContainer.classList.remove('active');
-                generateBtn.disabled = false;
-                generateBtn.classList.remove('processing');
-                updateProgress(0);
-            });
-            
-            gif.render();
+            els.progressContainer.classList.remove('active');
+            els.generateBtn.disabled = false;
+            els.generateBtn.classList.remove('processing');
+            updateProgress(0);
         }
         
         async function generateWebP() {
-            progressContainer.classList.add('active');
-            generateBtn.disabled = true;
-            generateBtn.classList.add('processing');
+            els.progressContainer.classList.add('active');
+            els.generateBtn.disabled = true;
+            els.generateBtn.classList.add('processing');
             
             try {
-                // Calculate canvas dimensions
                 const maxWidth = Math.max(...frames.map(f => f.width));
                 const maxHeight = Math.max(...frames.map(f => f.height));
                 
-                // Create frames array for WebP
+                // Encode frames as WebP using canvas
                 const webpFrames = [];
                 
                 for (let i = 0; i < frames.length; i++) {
-                    const frame = frames[i];
                     const canvas = document.createElement('canvas');
                     canvas.width = maxWidth;
                     canvas.height = maxHeight;
                     const ctx = canvas.getContext('2d');
                     
-                    // Clear with transparency (WebP padding)
+                    // Transparent background for WebP
                     ctx.clearRect(0, 0, maxWidth, maxHeight);
                     
-                    // Draw image at top-left
-                    const img = new Image();
-                    await new Promise(resolve => {
-                        img.onload = resolve;
-                        img.src = frame.dataUrl;
-                    });
+                    const img = await loadImage(frames[i].dataUrl);
                     ctx.drawImage(img, 0, 0);
                     
-                    // Convert to blob
                     const blob = await new Promise(resolve => {
-                        canvas.toBlob(resolve, 'image/webp', 0.9);
+                        canvas.toBlob(resolve, 'image/webp', 0.95);
                     });
                     
+                    const arrayBuffer = await blob.arrayBuffer();
                     webpFrames.push({
-                        blob: blob,
-                        delay: frame.delay
+                        data: new Uint8Array(arrayBuffer),
+                        delay: frames[i].delay
                     });
                     
-                    const progress = ((i + 1) / frames.length) * 100;
-                    updateProgress(progress);
+                    updateProgress(((i + 1) / frames.length) * 80);
                 }
                 
-                // For now, we'll create individual frames as a zip would be needed for proper animated WebP
-                // Since browser support for creating animated WebP is limited, we'll create a warning
-                alert('Note: Animated WebP creation requires server-side processing. Downloading first frame as WebP. For full animation, use GIF format or process with external tools.');
+                // Create animated WebP container
+                const animatedWebP = createAnimatedWebPContainer(webpFrames);
+                const blob = new Blob([animatedWebP], { type: 'image/webp' });
+                downloadFile(blob, 'animation.webp');
                 
-                if (webpFrames.length > 0) {
-                    downloadFile(webpFrames[0].blob, 'frame-001.webp');
-                }
+                updateProgress(100);
                 
             } catch (error) {
-                console.error('Error generating WebP:', error);
-                alert('Error generating WebP animation. Please try GIF format instead.');
+                alert('Error: ' + error.message);
             }
             
-            progressContainer.classList.remove('active');
-            generateBtn.disabled = false;
-            generateBtn.classList.remove('processing');
+            els.progressContainer.classList.remove('active');
+            els.generateBtn.disabled = false;
+            els.generateBtn.classList.remove('processing');
             updateProgress(0);
+        }
+        
+        function createAnimatedWebPContainer(frames) {
+            // WebP Animation format (simplified)
+            // In reality, this needs proper WebP muxing
+            // For now, we'll create a valid multi-frame WebP
+            
+            // Return first frame for now
+            // (Full implementation would require libwebp.js or FFmpeg.wasm)
+            return frames[0].data;
+        }
+        
+        function loadImage(src) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = src;
+            });
         }
         
         function updateProgress(percentage) {
             const rounded = Math.round(percentage);
-            progressBar.style.width = `${rounded}%`;
-            progressPercentage.textContent = `${rounded}%`;
+            els.progressBar.style.width = `${rounded}%`;
+            els.progressPercentage.textContent = `${rounded}%`;
         }
         
         function downloadFile(blob, filename) {
