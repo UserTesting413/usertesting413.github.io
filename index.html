@@ -1,10 +1,754 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>My GitHub Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF/WebP Animator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Mono:wght@700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #15151f;
+            --bg-tertiary: #1f1f2e;
+            --accent-primary: #00ff88;
+            --accent-secondary: #ff0088;
+            --text-primary: #e8e8ff;
+            --text-secondary: #8888aa;
+            --border: #2a2a3f;
+            --shadow: rgba(0, 255, 136, 0.1);
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 136, 0.03) 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .controls {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        input[type="number"] {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+        }
+        
+        select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--accent-primary), #00dd77);
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: var(--bg-primary);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 255, 136, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+        
+        .button-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+        }
+        
+        .upload-zone {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+        }
+        
+        .upload-zone:hover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .upload-zone.dragover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 255, 136, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .frames-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            min-height: 200px;
+        }
+        
+        .frames-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .frames-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .frame-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+        
+        .frame-item:active {
+            cursor: grabbing;
+        }
+        
+        .frame-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .frame-item:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        
+        .drag-handle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: grab;
+            user-select: none;
+        }
+        
+        .frame-preview {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        
+        .frame-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .frame-name {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .frame-dimensions {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .frame-delay {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .frame-delay input {
+            width: 80px;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .frame-delay-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .frame-remove {
+            background: rgba(255, 0, 136, 0.1);
+            color: var(--accent-secondary);
+            border: 1px solid rgba(255, 0, 136, 0.2);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+        }
+        
+        .frame-remove:hover {
+            background: rgba(255, 0, 136, 0.2);
+            box-shadow: 0 4px 12px rgba(255, 0, 136, 0.2);
+        }
+        
+        .progress-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+        
+        .progress-container.active {
+            display: block;
+        }
+        
+        .progress-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .progress-bar-bg {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            height: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--accent-primary), #00dd77);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .progress-percentage {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--bg-primary);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            mix-blend-mode: difference;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .processing {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
 </head>
 <body>
-  <h1>Hello, GitHub Pages!</h1>
-  <p>This is my website hosted on GitHub, maybe.</p>
+    <div class="container">
+        <h1>GIF/WebP Animator</h1>
+        <p class="subtitle">Drag. Drop. Animate. Export.</p>
+        
+        <div class="controls">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="defaultDelay">Default Frame Delay (ms)</label>
+                    <input type="number" id="defaultDelay" value="100" min="10" step="10">
+                </div>
+                <div class="control-group">
+                    <label for="outputFormat">Output Format</label>
+                    <select id="outputFormat">
+                        <option value="gif">GIF</option>
+                        <option value="webp">WebP</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📁</div>
+            <h3>Drop images here or click to browse</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.875rem;">
+                Supports: JPG, PNG, GIF, WebP
+            </p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple>
+        
+        <div class="frames-container">
+            <div class="frames-title">Frames (<span id="frameCount">0</span>)</div>
+            <div class="frames-list" id="framesList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎞️</div>
+                    <p>No frames yet. Add images to get started!</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-label">Encoding Progress</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar">
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="generateBtn" disabled>Generate Animation</button>
+            <button class="button-secondary" id="clearBtn">Clear All Frames</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+    <script>
+        let frames = [];
+        let draggedIndex = null;
+        
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const framesList = document.getElementById('framesList');
+        const frameCount = document.getElementById('frameCount');
+        const defaultDelayInput = document.getElementById('defaultDelay');
+        const outputFormatSelect = document.getElementById('outputFormat');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercentage = document.getElementById('progressPercentage');
+        
+        // Upload zone interactions
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(files) {
+            const defaultDelay = parseInt(defaultDelayInput.value);
+            
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        frames.push({
+                            id: Date.now() + Math.random(),
+                            name: file.name,
+                            dataUrl: e.target.result,
+                            width: img.width,
+                            height: img.height,
+                            delay: defaultDelay
+                        });
+                        renderFrames();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function renderFrames() {
+            frameCount.textContent = frames.length;
+            generateBtn.disabled = frames.length === 0;
+            
+            if (frames.length === 0) {
+                framesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎞️</div>
+                        <p>No frames yet. Add images to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            framesList.innerHTML = frames.map((frame, index) => `
+                <div class="frame-item" draggable="true" data-index="${index}">
+                    <div class="drag-handle">⋮⋮</div>
+                    <img src="${frame.dataUrl}" class="frame-preview" alt="${frame.name}">
+                    <div class="frame-info">
+                        <div class="frame-name">${frame.name}</div>
+                        <div class="frame-dimensions">${frame.width} × ${frame.height}px</div>
+                        <div class="frame-delay">
+                            <input type="number" value="${frame.delay}" min="10" step="10" 
+                                   onchange="updateFrameDelay(${index}, this.value)">
+                            <span class="frame-delay-label">ms</span>
+                        </div>
+                    </div>
+                    <button class="frame-remove button-secondary" onclick="removeFrame(${index})">
+                        Remove
+                    </button>
+                </div>
+            `).join('');
+            
+            // Add drag and drop listeners
+            document.querySelectorAll('.frame-item').forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+        }
+        
+        function handleDragStart(e) {
+            draggedIndex = parseInt(e.target.getAttribute('data-index'));
+            e.target.classList.add('dragging');
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropIndex = parseInt(e.currentTarget.getAttribute('data-index'));
+            
+            if (draggedIndex !== null && draggedIndex !== dropIndex) {
+                const draggedFrame = frames[draggedIndex];
+                frames.splice(draggedIndex, 1);
+                frames.splice(dropIndex, 0, draggedFrame);
+                renderFrames();
+            }
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedIndex = null;
+        }
+        
+        function updateFrameDelay(index, delay) {
+            frames[index].delay = parseInt(delay);
+        }
+        
+        function removeFrame(index) {
+            frames.splice(index, 1);
+            renderFrames();
+        }
+        
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all frames?')) {
+                frames = [];
+                renderFrames();
+            }
+        });
+        
+        generateBtn.addEventListener('click', async () => {
+            const format = outputFormatSelect.value;
+            
+            if (format === 'gif') {
+                await generateGIF();
+            } else {
+                await generateWebP();
+            }
+        });
+        
+        async function generateGIF() {
+            progressContainer.classList.add('active');
+            generateBtn.disabled = true;
+            generateBtn.classList.add('processing');
+            
+            // Calculate canvas dimensions
+            const maxWidth = Math.max(...frames.map(f => f.width));
+            const maxHeight = Math.max(...frames.map(f => f.height));
+            
+            const gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: maxWidth,
+                height: maxHeight,
+                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+            });
+            
+            // Add frames
+            for (let i = 0; i < frames.length; i++) {
+                const frame = frames[i];
+                const canvas = document.createElement('canvas');
+                canvas.width = maxWidth;
+                canvas.height = maxHeight;
+                const ctx = canvas.getContext('2d');
+                
+                // Fill with white (GIF padding)
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, maxWidth, maxHeight);
+                
+                // Draw image at top-left
+                const img = new Image();
+                await new Promise(resolve => {
+                    img.onload = resolve;
+                    img.src = frame.dataUrl;
+                });
+                ctx.drawImage(img, 0, 0);
+                
+                gif.addFrame(canvas, { delay: frame.delay });
+                
+                // Update progress
+                const progress = ((i + 1) / frames.length) * 50; // First 50% for adding frames
+                updateProgress(progress);
+            }
+            
+            gif.on('progress', (p) => {
+                const progress = 50 + (p * 50); // Second 50% for encoding
+                updateProgress(progress);
+            });
+            
+            gif.on('finished', (blob) => {
+                downloadFile(blob, 'animation.gif');
+                progressContainer.classList.remove('active');
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('processing');
+                updateProgress(0);
+            });
+            
+            gif.render();
+        }
+        
+        async function generateWebP() {
+            progressContainer.classList.add('active');
+            generateBtn.disabled = true;
+            generateBtn.classList.add('processing');
+            
+            try {
+                // Calculate canvas dimensions
+                const maxWidth = Math.max(...frames.map(f => f.width));
+                const maxHeight = Math.max(...frames.map(f => f.height));
+                
+                // Create frames array for WebP
+                const webpFrames = [];
+                
+                for (let i = 0; i < frames.length; i++) {
+                    const frame = frames[i];
+                    const canvas = document.createElement('canvas');
+                    canvas.width = maxWidth;
+                    canvas.height = maxHeight;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Clear with transparency (WebP padding)
+                    ctx.clearRect(0, 0, maxWidth, maxHeight);
+                    
+                    // Draw image at top-left
+                    const img = new Image();
+                    await new Promise(resolve => {
+                        img.onload = resolve;
+                        img.src = frame.dataUrl;
+                    });
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Convert to blob
+                    const blob = await new Promise(resolve => {
+                        canvas.toBlob(resolve, 'image/webp', 0.9);
+                    });
+                    
+                    webpFrames.push({
+                        blob: blob,
+                        delay: frame.delay
+                    });
+                    
+                    const progress = ((i + 1) / frames.length) * 100;
+                    updateProgress(progress);
+                }
+                
+                // For now, we'll create individual frames as a zip would be needed for proper animated WebP
+                // Since browser support for creating animated WebP is limited, we'll create a warning
+                alert('Note: Animated WebP creation requires server-side processing. Downloading first frame as WebP. For full animation, use GIF format or process with external tools.');
+                
+                if (webpFrames.length > 0) {
+                    downloadFile(webpFrames[0].blob, 'frame-001.webp');
+                }
+                
+            } catch (error) {
+                console.error('Error generating WebP:', error);
+                alert('Error generating WebP animation. Please try GIF format instead.');
+            }
+            
+            progressContainer.classList.remove('active');
+            generateBtn.disabled = false;
+            generateBtn.classList.remove('processing');
+            updateProgress(0);
+        }
+        
+        function updateProgress(percentage) {
+            const rounded = Math.round(percentage);
+            progressBar.style.width = `${rounded}%`;
+            progressPercentage.textContent = `${rounded}%`;
+        }
+        
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 </html>
